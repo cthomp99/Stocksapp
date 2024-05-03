@@ -6,8 +6,6 @@ def get_total_return_data(stock_symbols, start_date, end_date, initial_investmen
     total_return_data = pd.DataFrame()
     cagr_data = {}
     current_value_data = {}
-    full_name_data = {}
-    manager_data = {}
     
     for symbol in stock_symbols:
         symbol = symbol.strip().upper()
@@ -35,22 +33,22 @@ def get_total_return_data(stock_symbols, start_date, end_date, initial_investmen
             
             # Calculate current value of investment
             current_value_data[symbol] = round(ending_value, 2)
-            
-
 
     # Create and sort the DataFrame for CAGR and current value data
     cagr_df = pd.DataFrame.from_dict(cagr_data, orient='index', columns=['CAGR (%)'])
     current_value_df = pd.DataFrame.from_dict(current_value_data, orient='index', columns=['Current Value'])
     
-    
     # Combine all the dataframes
     result_df = pd.concat([cagr_df, current_value_df], axis=1)
-    result_df.sort_values(by='CAGR (%)', ascending=False, inplace=True)
+    result_df = result_df.sort_values(by='CAGR (%)', ascending=False)  # Sort by CAGR in high to low
     
     return total_return_data, result_df
 
 # Streamlit user interface setup
 st.title('Total Stock Return Viewer')
+
+# Add text explaining Australian ticker format
+st.write("For Australian shares, enter the ticker with '.AX' (e.g. CBA.AX)")
 
 # Input for stock symbols
 stock_symbols = st.text_input('Enter Stock Symbols (comma separated):', 'VHY.AX, VESG.AX, VDHG.AX').split(',')
@@ -69,9 +67,8 @@ if st.button('Show Total Stock Return'):
         st.write('### Total Stock Return (Rebased to Initial Investment)')
         st.line_chart(total_return_data)
 
-        st.write('### Summary Table')
+        st.write('### Annualised Return and Current Value')
+        st.write('##### Ordered by Annualised Return (including dividend reinvestment)')
         st.dataframe(result_df)
     else:
         st.write('No data available for the given symbols or date range.')
-
-
